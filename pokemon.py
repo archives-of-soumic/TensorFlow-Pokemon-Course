@@ -32,14 +32,21 @@ def train_test_splitter(DataFrame, column):
 
 
 # noinspection PyRedundantParentheses
-def label_delineator(df_train, df_test, label):  # x_train, y_train, x_test, y_test
-    train_data = df_train.drop(label, axis=1).values  # x_train
-    train_labels = df_train[label].values  # y_train
+def label_delineator(df_train1, df_test1, label):  # x_train, y_train, x_test, y_test
+    train_data1 = df_train.drop(label, axis=1).values  # x_train
+    train_labels1 = df_train[label].values  # y_train
 
-    test_data = df_test.drop(label, axis=1).values  # x_test
-    test_labels = df_test[label].values  # y_test
+    test_data1 = df_test.drop(label, axis=1).values  # x_test
+    test_labels1 = df_test[label].values  # y_test
 
-    return (train_data, train_labels, test_data, test_labels)
+    return (train_data1, train_labels1, test_data1, test_labels1)
+
+
+# noinspection PyRedundantParentheses
+def data_normalizer(train_data1, test_data1):
+    train_data1 = preprocessing.MinMaxScaler().fit_transform(train_data1)
+    test_data1 = preprocessing.MinMaxScaler().fit_transform(test_data1)
+    return (train_data1, test_data1)
 
 
 if __name__ == '__main__':
@@ -51,3 +58,11 @@ if __name__ == '__main__':
 
     df_train, df_test = train_test_splitter(DataFrame=df, column="Generation")
     train_data, train_labels, test_data, test_labels = label_delineator(df_train, df_test, "isLegendary")
+
+    train_data, test_data = data_normalizer(train_data, test_data)
+
+    length = train_data.shape[1]
+
+    model = keras.Sequencial()
+    model.add(keras.layers.Dense(500, activation="relu", input_shape=[length, ]))
+    model.add(keras.layers.Dense(2, activation="softmax"))
